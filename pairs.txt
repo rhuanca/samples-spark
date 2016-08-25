@@ -1,0 +1,12 @@
+Argentina 40482000
+Bolivia 9863000
+Brazil 202241714
+Chile 16928873
+Colombia 46920000
+Ecuador 14573101
+Guyana 772298
+Paraguay 6831306
+Peru 29132013
+Suriname 472000
+Uruguay 3477780
+Venezuela 31648930
