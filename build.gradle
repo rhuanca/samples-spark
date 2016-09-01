@@ -1,8 +1,21 @@
 apply plugin: 'java'
 apply plugin: 'application'
 
+mainClassName = 'Example1'
+
 repositories {
     mavenCentral()
+}
+
+task fatJar(type: Jar) {
+	manifest {
+        attributes 'Implementation-Title': 'Spark Examples',  
+        'Main-Class': mainClassName
+    }
+    
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }
 
 sourceCompatibility = 1.8
