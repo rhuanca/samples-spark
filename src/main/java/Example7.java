@@ -32,8 +32,6 @@ public class Example7 {
 		public void setString(String string) {
 			this.string = string;
 		}
-		
-		
 
 		@Override
 		public void call(JavaRDD<String> t) throws Exception {
@@ -57,7 +55,6 @@ public class Example7 {
 		public void call(JavaRDD<String> t) throws Exception {
 			logger.info(">>> received config message");
 			t.persist(StorageLevel.MEMORY_AND_DISK());
-			
 		}
 	}
 
@@ -68,9 +65,8 @@ public class Example7 {
 		JavaStreamingContext ssc = new JavaStreamingContext(sparkConf,
 				Durations.seconds(10));
 		
-	    ExecutorService executorService = Executors.newFixedThreadPool(3);
+	    ExecutorService executorService = Executors.newFixedThreadPool(2);
 	    
-
 	    executorService.submit(new Runnable() {
 			
 			@Override
@@ -106,8 +102,6 @@ public class Example7 {
 				ConfigUpdater configUpdater = new ConfigUpdater();
 				
 				stream.foreachRDD(configUpdater);
-				
-				
 
 				try {
 					ssc.awaitTermination();
