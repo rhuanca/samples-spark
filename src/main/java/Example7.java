@@ -1,4 +1,4 @@
-import java.util.Iterator;
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -8,43 +8,40 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.mqtt.MQTTUtils;
 
-import scala.collection.Iterable;
-import scala.collection.Map;
-
 public class Example7 {
 	private static Logger logger = Logger.getLogger(Example7.class);
+	
+//	private static class Config implements Serializable{
+//		public String preffix;
+//
+//		public Config(String preffix) {
+//			this.preffix = preffix;
+//		}
+//		
+//	}
 	
 	public static class Processor implements VoidFunction<JavaRDD<String>> {
 		private static final long serialVersionUID = 1L;
 
-		private String string;
+//		private Config config;
 		
-		public Processor(String string) {
-			this.string = string;
-		}
-
-		public void setString(String string) {
-			this.string = string;
-		}
-
 		@Override
 		public void call(JavaRDD<String> t) throws Exception {
-			List<String> messages = t.collect();
-			Map<Object, RDD<?>> persistentRDDs = t.context().getPersistentRDDs();
-			scala.collection.Iterator<Object> keys = persistentRDDs.keys().iterator();
-			while(keys.hasNext()) {
-				Object key = keys.next();
-				logger.info(">>> key = " + key);
-				logger.info(">>> value = " + persistentRDDs.get(key) );
-				logger.info(">>> value.getClass() = " + persistentRDDs.get(key).getClass() );
-				
-			}
+			logger.info(">>> data-t = " + t.count());
+			t.foreach(new VoidFunction<String>() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void call(String t) throws Exception {
+					logger.info(">>> data = " + t);
+				}
+			});
 		}
 	}
 	
@@ -54,21 +51,30 @@ public class Example7 {
 		@Override
 		public void call(JavaRDD<String> t) throws Exception {
 			logger.info(">>> received config message");
-			t.persist(StorageLevel.MEMORY_AND_DISK());
+			logger.info(">>> t.count() = " + t.count());
+			
+//			System.out.println(">>> t.collect() = " + t.collect());
+			t.foreach(new VoidFunction<String>() {
+				
+				@Override
+				public void call(String t) throws Exception {
+					logger.error(">>>> t = " + t);
+				}
+			});
 		}
 	}
 
 	public static void main(String args[]) {
 		SparkConf sparkConf = new SparkConf()
-				.setAppName("SparkStreamingMqttTest").setMaster("local[1]");
+				.setAppName("SparkStreamingMqttTest").setMaster("local[3]");
 
+		// spark streaming context with a 10 second batch size
 		JavaStreamingContext ssc = new JavaStreamingContext(sparkConf,
-				Durations.seconds(10));
+				Durations.seconds(5));
 		
 	    ExecutorService executorService = Executors.newFixedThreadPool(2);
 	    
 	    executorService.submit(new Runnable() {
-			
 			@Override
 			public void run() {
 				String brokerUrl = "tcp://localhost:1883";
@@ -77,10 +83,10 @@ public class Example7 {
 				JavaReceiverInputDStream<String> stream = MQTTUtils.createStream(ssc,
 						brokerUrl, topic);
 
-				Processor processor = new Processor("val");
 				
-				stream.foreachRDD(processor);
-	
+				stream.foreachRDD(new Processor());
+
+				ssc.start();
 				try {
 					ssc.awaitTermination();
 				} catch (InterruptedException e) {
@@ -89,28 +95,33 @@ public class Example7 {
 			}
 		});
 	    
-	    executorService.submit(new Runnable() {
-
+		executorService.submit(new Runnable() {
 			@Override
 			public void run() {
 				String brokerUrl = "tcp://localhost:1883";
 				String topic = "/config";
 
-				JavaReceiverInputDStream<String> stream = MQTTUtils.createStream(ssc,
-						brokerUrl, topic);
+				JavaReceiverInputDStream<String> stream = MQTTUtils
+						.createStream(ssc, brokerUrl, topic);
 
 				ConfigUpdater configUpdater = new ConfigUpdater();
 				
 				stream.foreachRDD(configUpdater);
-
-				try {
-					ssc.awaitTermination();
-				} catch (InterruptedException e) {
-					System.err.println(e);
-				}				
 			}
-	    });
-	    
-	    ssc.start();
+		});
+		
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+			logger.error(e1);
+		}
+		
+		ssc.start();
+		try {
+			ssc.awaitTermination();
+		} catch (InterruptedException e) {
+			System.err.println(e);
+		}
 	}
 }
