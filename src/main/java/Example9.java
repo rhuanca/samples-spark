@@ -15,15 +15,6 @@ import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.receiver.Receiver;
-import org.apache.spark.streaming.scheduler.StreamingListener;
-import org.apache.spark.streaming.scheduler.StreamingListenerBatchCompleted;
-import org.apache.spark.streaming.scheduler.StreamingListenerBatchStarted;
-import org.apache.spark.streaming.scheduler.StreamingListenerBatchSubmitted;
-import org.apache.spark.streaming.scheduler.StreamingListenerOutputOperationCompleted;
-import org.apache.spark.streaming.scheduler.StreamingListenerOutputOperationStarted;
-import org.apache.spark.streaming.scheduler.StreamingListenerReceiverError;
-import org.apache.spark.streaming.scheduler.StreamingListenerReceiverStarted;
-import org.apache.spark.streaming.scheduler.StreamingListenerReceiverStopped;
 
 public class Example9 {
 	private static Logger logger = Logger.getLogger(Example9.class);
@@ -96,37 +87,29 @@ public class Example9 {
 				boolean readPage = false;
 				while (run && reader.hasNext()) {
 					int next = reader.next();
-					logger.info(">>> run: " + run);
-					// logger.info(">>> YYYYY duration = " + duration);
-					// if (duration != 0 ) {
-					// logger.info(">>> t = " + (System.currentTimeMillis()
-					// - startTime)/1000);
-					// }
 					long t = (System.currentTimeMillis() - startTime) / 1000;
-					logger.info(">>> t: " + t);
 					if (duration != 0 && t > duration) {
-						logger.info(">>> 1-run: " + run);
 						run = false;
-						logger.info(">>> 2-run: " + run);
 					}
-					// if (next == XMLStreamReader.START_ELEMENT &&
-					// "page".equals(reader.getLocalName())) {
-					// readPage = true;
-					// } else if (readPage && next ==
-					// XMLStreamReader.START_ELEMENT) {
-					// elementName = reader.getLocalName();
-					// if (elementName.equals("title")) {
-					// title = reader.getElementText();
-					// }
-					// if (elementName.equals("text")) {
-					// text = reader.getElementText();
-					// store(new Element(title, text));
-					// readPage = false;
-					// }
-					// }
+					if (next == XMLStreamReader.START_ELEMENT
+							&& "page".equals(reader.getLocalName())) {
+						readPage = true;
+						title = "";
+						text = "";
+					} else if (readPage
+							&& next == XMLStreamReader.START_ELEMENT) {
+						elementName = reader.getLocalName();
+						if (elementName.equals("title")) {
+							title = reader.getElementText();
+						}
+						if (elementName.equals("text")) {
+							text = reader.getElementText();
+							store(new Element(title, text));
+							readPage = false;
+						}
+					 }
 				}
 				logger.info("finished to read pages.");
-				// onStop();
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
