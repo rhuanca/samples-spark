@@ -1,0 +1,69 @@
+digraph {
+	0 [label="male > 0.5
+ Impurity: 0.481757353869461
+ Gain: 0.13880057591007863" shape=rectangle]
+	1 [label="ticket_class > 2.5
+ Impurity: 0.3720874763345805
+ Gain: 0.1108734710216617" shape=rectangle]
+	2 [label="age > 2.5
+ Impurity: 0.10807740679135058
+ Gain: 0.005057065718821169" shape=rectangle]
+	3 [label="ticket_class > 1.5
+ Impurity: 0.5
+ Gain: 0.5" shape=rectangle]
+	4 [label=died shape=ellipse]
+	5 [label=survived shape=ellipse]
+	6 [label=survived shape=ellipse]
+	7 [label="fare > 20.7875
+ Impurity: 0.4969242599000385
+ Gain: 0.06354452385592352" shape=rectangle]
+	8 [label="age > 17.5
+ Impurity: 0.493510655343695
+ Gain: 0.035936916624053517" shape=rectangle]
+	9 [label=survived shape=ellipse]
+	10 [label=died shape=ellipse]
+	11 [label=died shape=ellipse]
+	12 [label="age > 5.5
+ Impurity: 0.32630147800535075
+ Gain: 0.021363049329653216" shape=rectangle]
+	13 [label="ticket_class > 2.5
+ Impurity: 0.4536862003780718
+ Gain: 0.18612767194997815" shape=rectangle]
+	14 [label=survived shape=ellipse]
+	15 [label="fare > 20.7875
+ Impurity: 0.47337278106508873
+ Gain: 0.33662064431295197" shape=rectangle]
+	16 [label=survived shape=ellipse]
+	17 [label=died shape=ellipse]
+	18 [label="ticket_class > 1.5
+ Impurity: 0.29698215251487287
+ Gain: 0.02451561969563862" shape=rectangle]
+	19 [label="age > 36.25
+ Impurity: 0.4730129578614428
+ Gain: 0.03108081592930087" shape=rectangle]
+	20 [label=survived shape=ellipse]
+	21 [label=died shape=ellipse]
+	22 [label=died shape=ellipse]
+	0 -> 1 [label=no]
+	0 -> 12 [label=yes]
+	1 -> 2 [label=no]
+	1 -> 7 [label=yes]
+	2 -> 3 [label=no]
+	2 -> 6 [label=yes]
+	3 -> 4 [label=no]
+	3 -> 5 [label=yes]
+	7 -> 8 [label=no]
+	7 -> 11 [label=yes]
+	8 -> 9 [label=no]
+	8 -> 10 [label=yes]
+	12 -> 13 [label=no]
+	12 -> 18 [label=yes]
+	13 -> 14 [label=no]
+	13 -> 15 [label=yes]
+	15 -> 16 [label=no]
+	15 -> 17 [label=yes]
+	18 -> 19 [label=no]
+	18 -> 22 [label=yes]
+	19 -> 20 [label=no]
+	19 -> 21 [label=yes]
+}
