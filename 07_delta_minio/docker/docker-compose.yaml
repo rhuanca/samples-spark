@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  minio:
+    image: minio/minio
+    ports:
+      - "9000"
+      - "9001"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: miniostorage
+    hostname: minio
+    volumes:
+      - /tmp/data:/data
+    command: server --address 0.0.0.0:9001 /data
